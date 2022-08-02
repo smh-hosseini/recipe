@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  app:
+    image: 'recipe:latest'
+    build:
+      context: .
+    container_name: recipe
+    ports:
+      - "7191:8080"
+    depends_on:
+      - db
+    networks:
+      - recipe-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/recipe
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+  db:
+    image: 'postgres:13.2-alpine'
+    container_name: db
+    networks:
+      - recipe-net
+    environment:
+      - POSTGRES_DB=recipe
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

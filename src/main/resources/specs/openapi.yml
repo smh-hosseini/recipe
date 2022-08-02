@@ -1,0 +1,247 @@
+openapi: 3.0.3
+info:
+  title: Recipe API
+  version: 1.0.0
+  contact:
+    name: Mohammad Hosseini
+    email: email@gmail.com
+  description: Provide description of the API
+servers:
+  - url: http://localhost:8080/api/v1
+tags:
+  - name: recipes
+paths:
+  /recipes:
+    get:
+      tags:
+        - recipes
+      summary: Retrieve All recieps.
+      description: Retrieve recipes matching the query parameters.
+      operationId: get-recipes
+      parameters:
+        - $ref: '#/components/parameters/Vegetarian'
+        - $ref: '#/components/parameters/Servings'
+        - $ref: '#/components/parameters/IngredientsInclude'
+        - $ref: '#/components/parameters/IngredientsExclude'
+        - $ref: '#/components/parameters/Instruction'
+      responses:
+        '200':
+          description: Response with the requested recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+              examples:
+                200 Success:
+                  value:
+                    meta:
+                      page_type: PAGE
+                      page: 0
+                      page_size: 10
+                      total_pages: 1
+                      total_items: 1
+                    links:
+                      self: page=0&page_size=10
+        '400':
+          $ref: '#/components/responses/400'
+    post:
+      tags:
+        - recipes
+      summary: create recieps.
+      description: create a .
+      operationId: create-recipes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Recipe"
+      responses:
+        '201':
+          description: Response with the requested recipes
+        '400':
+          $ref: '#/components/responses/400'
+    put:
+      tags:
+        - recipes
+      description: update a recipe
+      operationId: update-recipes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Recipe"
+      responses:
+        '200':
+          description: Response with the updated recipe
+        '400':
+          $ref: '#/components/responses/400'
+  /recipes/{recipe-id}:
+    get:
+      tags:
+        - recipes
+      summary: Retrieve a reciep.
+      description: Retrieve recipe for the provided id.
+      operationId: get-recipe
+      parameters:
+        - $ref: '#/components/parameters/RecipeId'
+      responses:
+        '200':
+          description: Response with the requested recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '404':
+          $ref: '#/components/responses/404'
+    delete:
+      tags:
+        - recipes
+      description: delete a recipe
+      operationId: delete-recipe
+      parameters:
+        - $ref: "#/components/parameters/RecipeId"
+      responses:
+        '204':
+          description: Response that shows that recipe deleted
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  parameters:
+    RecipeId:
+      name: recipe-id
+      in: path
+      description: Id of of recipe
+      required: true
+      schema:
+        type: integer
+        format: int64
+    Vegetarian:
+      name: vegan
+      in: query
+      description: Is the recipe is vegeterian or not
+      schema:
+        type: boolean
+    Servings:
+      name: servings
+      in: query
+      description: number of servings per
+      schema:
+        type: integer
+    IngredientsInclude:
+      name: ingredients-include
+      in: query
+      description: List of ingredient to include in the recipe
+      schema:
+        uniqueItems: true
+        type: array
+        items:
+          type: string
+    IngredientsExclude:
+      name: ingredients-exclude
+      in: query
+      description: List of ingredient to exclude in the recipe
+      schema:
+        uniqueItems: true
+        type: array
+        items:
+          type: string
+    Instruction:
+      name: instruction
+      in: query
+      description: Text search within the instructions
+      schema:
+        type: string
+  schemas:
+    Recipe:
+      title: Recipe
+      type: object
+      properties:
+        id:
+          description: Id of the recipe
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: Name of the recipe
+        vegan:
+          type: boolean
+          description: Is it vegan or not
+        servings:
+          type: integer
+          description: Number of servings
+        ingredients:
+          type: array
+          description: Ingredient of the recipe
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        instructions:
+          type: string
+          description: instructions of the recipe
+    Ingredient:
+      title: Ingredient
+      type: string
+    Error:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferenceable and point to a human-readable documentation nor globally unique for the problem type.
+          default: about:blank
+          example: /problem/connection-error
+        title:
+          type: string
+          description: |
+            A short summary of the problem type. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: Service Unavailable
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+          example: 503
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the problem that is helpful to locate the problem and give advice on how to proceed. Written in English and readable for engineers, usually not suited for non technical stakeholders and not localized.
+          example: Connection to database timed out
+        instance:
+          type: string
+          format: uri-reference
+          description: |
+            A URI reference that identifies the specific occurrence of the problem, e.g. by adding a fragment identifier or sub-path to the problem type. May be used to locate the root of this problem in the source code.
+          example: /problem/connection-error#token-info-read-timed-out
+
+  responses:
+    '400':
+      description: 400 Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            400 Bad Request:
+              value:
+                title: Method argument is not valid
+                status: 400
+                detail: 'For input string: "badVersion"'
+    '404':
+      description: 404 Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            404 Resource Not Found:
+              value:
+                title: Resource not found
+                status: 404
+                detail: 'No row with the given identifier exists'

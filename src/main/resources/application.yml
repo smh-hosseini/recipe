@@ -1,0 +1,53 @@
+springdoc:
+  api-docs:
+    enabled: true
+    path: /json-docs
+  swagger-ui:
+    query-config-enabled: true
+    display-query-params: false
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:54310/recipe?prepareThreshold=0
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        metadata_builder_contributor: com.assignment.recipes.repository.fts.FtsMetadataBuilderContributor
+        order_updates: true
+        envers:
+          autoRegisterListeners: false
+  application:
+    name: recipe
+  flyway:
+    baseline-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+    mapper:
+      sort-properties-alphabetically: false
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: default
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    com.assignment.recipes: INFO
+    db.migration: DEBUG
+
+management:
+  endpoints:
+    web:
+      base-path: /deployment
+      exposure:
+        include: [ "health", "info" ]

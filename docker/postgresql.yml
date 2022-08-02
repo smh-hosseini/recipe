@@ -1,0 +1,10 @@
+services:
+  db-recipe:
+    image: 'postgres:13.2-alpine'
+    container_name: db-recipe
+    ports:
+      - "54310:5432"
+    environment:
+      - POSTGRES_DB=recipe
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
